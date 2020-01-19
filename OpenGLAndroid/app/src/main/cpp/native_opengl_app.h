@@ -46,8 +46,10 @@ namespace ndk_opengl_app {
     int screen_height;
 
     GLuint shader_program;
+
     GLuint vertex_array_obj;
     GLuint vertex_buffer_obj;
+    GLuint element_buffer_obj;
   };
 }
 
