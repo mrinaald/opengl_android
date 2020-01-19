@@ -6,11 +6,16 @@
 cmake_minimum_required(VERSION 3.4.1)
 
 # Standard Android dependencies
-find_library(android-lib android)
-find_library(EGL-lib EGL)
-find_library(GLESv2-lib GLESv2)
-find_library(log-lib log)
+find_library(android_lib android)
+find_library(EGL_lib EGL)
+find_library(log_lib log)
 
+
+if (${ANDROID_PLATFORM_LEVEL} LESS 18)
+    set(OPENGL_LIB GLESv2)
+else ()
+    set(OPENGL_LIB GLESv3)
+endif (${ANDROID_PLATFORM_LEVEL} LESS 18)
 
 # Creates and names a library, sets it as either STATIC
 # or SHARED, and provides the relative paths to its source code.
@@ -18,7 +23,7 @@ find_library(log-lib log)
 # Gradle automatically packages shared libraries with your APK.
 
 # Sources
-file(GLOB native_srcs "*.cpp")
+file(GLOB native_srcs "./*.cpp")
 # Output binary
 add_library(native-lib SHARED ${native_srcs})
 
@@ -29,9 +34,9 @@ add_library(native-lib SHARED ${native_srcs})
 
 # Build
 target_link_libraries(native-lib
-            ${android-lib}
-            ${EGL-lib}
-            ${GLESv2-lib}
-            ${log-lib}
+            ${android_lib}
+            ${EGL_lib}
+            ${OPENGL_LIB}
+            ${log_lib}
             # ${libs_dir}/jni/${ANDROID_ABI}/libcardboard_api.so
         )
