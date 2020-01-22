@@ -49,7 +49,6 @@ namespace ndk_opengl_app {
 
     GLuint vertex_array_obj;
     GLuint vertex_buffer_obj;
-    GLuint element_buffer_obj;
   };
 }
 
