@@ -89,8 +89,9 @@ Java_com_example_openglandroid_MainActivity_nativeLoadTextureFromBitmap(
         JNIEnv* env,
         jobject obj,
         jlong native_app,
-        jobject bitmap ) {
-  native_ptr(native_app)->LoadTextureFromBitmap(env, bitmap);
+        jobject bitmap,
+        jint new_active_texture_id ) {
+  native_ptr(native_app)->LoadTextureFromBitmap(env, bitmap, new_active_texture_id);
 }
 
 }   // extern "C"

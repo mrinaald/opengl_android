@@ -14,6 +14,7 @@ import android.app.ActivityManager
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Matrix
 
 
 class MainActivity : AppCompatActivity() {
@@ -95,9 +96,21 @@ class MainActivity : AppCompatActivity() {
   }
 
   private fun loadTextureFiles() {
-    var bitmap = BitmapFactory.decodeStream(assets.open("container.jpg"))
+    val options = BitmapFactory.Options()
+    options.inScaled = false
 
-    nativeLoadTextureFromBitmap(nativeApp, bitmap)
+    var bitmap = BitmapFactory.decodeStream(assets.open("container.jpg"))
+    nativeLoadTextureFromBitmap(nativeApp, bitmap.verticalFlip(), 0)
+
+    bitmap = BitmapFactory.decodeStream(assets.open("awesomeface.png"))
+    nativeLoadTextureFromBitmap(nativeApp, bitmap.verticalFlip(), 1)
+  }
+
+  private fun Bitmap.verticalFlip(): Bitmap {
+    val cx = this.width / 2f
+    val cy = this.height / 2f
+    val mat = Matrix().apply{ postScale(1f, -1f, cx, cy) }
+    return Bitmap.createBitmap(this, 0, 0, width, height, mat, true)
   }
 
   companion object {
@@ -122,5 +135,5 @@ class MainActivity : AppCompatActivity() {
 
   external fun nativeOnDrawFrame(nativeApp: Long)
 
-  external fun nativeLoadTextureFromBitmap(nativeApp: Long, bitmap: Bitmap)
+  external fun nativeLoadTextureFromBitmap(nativeApp: Long, bitmap: Bitmap, newActiveTextureId: Int)
 }

@@ -11,14 +11,18 @@ GLuint Texture::active_id_counter = 0;
 
 
 Texture::Texture()
-        : active_texture_id(active_id_counter++),
+        : active_texture_id(0),
           texture_id(0) {}
 
 
-Texture::~Texture() {}
+Texture::~Texture() = default;
 
 
-bool Texture::LoadTextureFromBitmap(JNIEnv *env, jobject bitmap) {
+bool Texture::LoadTextureFromBitmap(JNIEnv *env, jobject bitmap, int new_active_texture_id) {
+  if (new_active_texture_id < active_id_counter)
+    active_texture_id = static_cast<GLuint>(new_active_texture_id);
+  else
+    active_texture_id = active_id_counter++;
   glGenTextures(1, &texture_id);
 
   Bind();

@@ -38,11 +38,14 @@ constexpr const char* FRAGMENT_SHADER =
         in vec2 TexCoord;
 
         // texture sampler
+        uniform sampler2D texture0;
         uniform sampler2D texture1;
 
         void main() {
           // FragColor = vec4(ourColor, 1.0f);
-          FragColor = texture(texture1, TexCoord);
+          // FragColor = texture(texture1, TexCoord);
+          // linearly interpolate between both textures (80% container, 20% awesomeface)
+          FragColor = mix(texture(texture0, TexCoord), texture(texture1, TexCoord), 0.2);
         })glsl";
 
 
@@ -163,14 +166,20 @@ void Renderer::RenderFrame() {
  * @param env
  * @param bitmap
  */
-void Renderer::LoadTextureFromBitmap(JNIEnv* env, jobject bitmap) {
+void Renderer::LoadTextureFromBitmap(JNIEnv* env, jobject bitmap, int new_active_texture_id) {
   Texture texture;
 
-  bool status = texture.LoadTextureFromBitmap(env, bitmap);
+  bool status = texture.LoadTextureFromBitmap(env, bitmap, new_active_texture_id);
   if ( !status ) {
     LOGE("Failed Loading texture");
     abort();
   }
+
+  // tell opengl for each sampler to which texture unit it belongs to (only has to be done once)
+  // -------------------------------------------------------------------------------------------
+  UseProgram();   // don't forget to activate/use the shader before setting uniforms!
+  std::string sampler_name = "texture" + std::to_string(texture_objs.size());
+  glUniform1i(glGetUniformLocation(shader_program, sampler_name.c_str()), texture_objs.size());
 
   texture_objs.push_back(texture);
 }

@@ -31,7 +31,7 @@ class Texture {
   // bound texture.
   //
   // @return True if initialization was successful.
-  bool LoadTextureFromBitmap(JNIEnv *env, jobject bitmap);
+  bool LoadTextureFromBitmap(JNIEnv *env, jobject bitmap, int new_active_texture_id);
 
   // Binds the texture, replacing any previously bound texture.
   void Bind() const;

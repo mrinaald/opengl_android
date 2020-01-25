@@ -41,8 +41,8 @@ void NativeOpenGLApp::OnSurfaceChanged(int width, int height) {
 }
 
 
-void NativeOpenGLApp::LoadTextureFromBitmap(JNIEnv* env, jobject bitmap) {
-  renderer.LoadTextureFromBitmap(env, bitmap);
+void NativeOpenGLApp::LoadTextureFromBitmap(JNIEnv* env, jobject bitmap, int new_active_texture_id) {
+  renderer.LoadTextureFromBitmap(env, bitmap, new_active_texture_id);
 }
 
 }   // namespace ndk_opengl_app
