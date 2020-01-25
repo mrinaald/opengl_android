@@ -16,7 +16,7 @@ NativeOpenGLApp::NativeOpenGLApp(JavaVM *vm)
 }
 
 
-NativeOpenGLApp::~NativeOpenGLApp() {}
+NativeOpenGLApp::~NativeOpenGLApp() = default;
 
 
 void NativeOpenGLApp::OnPause() {}
@@ -38,6 +38,11 @@ void NativeOpenGLApp::OnDrawFrame() {
 void NativeOpenGLApp::OnSurfaceChanged(int width, int height) {
   screen_width = width;
   screen_height = height;
+}
+
+
+void NativeOpenGLApp::LoadTextureFromBitmap(JNIEnv* env, jobject bitmap) {
+  renderer.LoadTextureFromBitmap(env, bitmap);
 }
 
 }   // namespace ndk_opengl_app

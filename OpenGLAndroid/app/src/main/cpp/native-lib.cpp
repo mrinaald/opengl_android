@@ -84,4 +84,13 @@ Java_com_example_openglandroid_MainActivity_nativeOnDrawFrame(
   native_ptr(native_app)->OnDrawFrame();
 }
 
+JNIEXPORT void JNICALL
+Java_com_example_openglandroid_MainActivity_nativeLoadTextureFromBitmap(
+        JNIEnv* env,
+        jobject obj,
+        jlong native_app,
+        jobject bitmap ) {
+  native_ptr(native_app)->LoadTextureFromBitmap(env, bitmap);
+}
+
 }   // extern "C"

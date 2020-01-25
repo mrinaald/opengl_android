@@ -4,8 +4,6 @@
 
 #include "RendererGL3.h"
 
-#include <android/log.h>
-
 namespace ndk_opengl_app {
 
 namespace {
@@ -15,15 +13,19 @@ namespace {
 
 #define POS_ATTRIB 0
 #define COLOR_ATTRIB 1
+#define TEXTURE_ATTRIB 2
 
 constexpr const char* VERTEX_SHADER =
         "#version 300 es\n"
         "layout (location = " STRV(POS_ATTRIB) ") in vec3 aPos;\n"
         "layout (location = " STRV(COLOR_ATTRIB) ") in vec3 aColor;\n"
+        "layout (location = " STRV(TEXTURE_ATTRIB) ") in vec2 aTexCoord;\n"
         "out vec3 ourColor;\n"
+        "out vec2 TexCoord;\n"
         "void main() {\n"
         "  gl_Position = vec4(aPos, 1.0);\n"
         "  ourColor = aColor;\n"
+        "  TexCoord = vec2(aTexCoord.x, aTexCoord.y);\n"
         "}\n";
 
 
@@ -31,18 +33,30 @@ constexpr const char* FRAGMENT_SHADER =
         R"glsl(#version 300 es
         precision mediump float;
         out vec4 FragColor;
+
         in vec3 ourColor;
+        in vec2 TexCoord;
+
+        // texture sampler
+        uniform sampler2D texture1;
 
         void main() {
-          FragColor = vec4(ourColor, 1.0f);
+          // FragColor = vec4(ourColor, 1.0f);
+          FragColor = texture(texture1, TexCoord);
         })glsl";
 
 
 float vertices[] = {
-        // positions         // colors
-        0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,  // bottom right
-        -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,  // bottom left
-        0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f   // top
+        // positions          // colors           // texture coords
+        0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // top right
+        0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, // bottom right
+        -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // bottom left
+        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  // top left
+};
+
+unsigned int indices[] = {
+        0, 1, 3, // first triangle
+        1, 2, 3  // second triangle
 };
 
 }   // anonymous namespace
@@ -58,6 +72,7 @@ Renderer::Renderer()
 Renderer::~Renderer() {
   glDeleteVertexArrays(1, &vertex_array_obj);
   glDeleteBuffers(1, &vertex_buffer_obj);
+  glDeleteBuffers(1, &element_buffer_obj);
 }
 
 
@@ -86,20 +101,30 @@ void Renderer::Initialize() {
   // Creating Vertex Buffer Objects and Vertex Buffer Arrays
   glGenVertexArrays(1, &vertex_array_obj);
   glGenBuffers(1, &vertex_buffer_obj);
+  glGenBuffers(1, &element_buffer_obj);
 
   // bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
   glBindVertexArray(vertex_array_obj);
 
+  // Allocate and store Vertex Buffer
   glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_obj);
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
+  // Allocate and store Element Array Buffer
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, element_buffer_obj);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
   // position attribute
-  glVertexAttribPointer(POS_ATTRIB, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), (void *)0);
+  glVertexAttribPointer(POS_ATTRIB, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)0);
   glEnableVertexAttribArray(POS_ATTRIB);
 
   // color attribute
-  glVertexAttribPointer(COLOR_ATTRIB, 3, GL_FLOAT, GL_FALSE, 6* sizeof(float), (void *)(3 * sizeof(float)));
+  glVertexAttribPointer(COLOR_ATTRIB, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(3 * sizeof(float)));
   glEnableVertexAttribArray(COLOR_ATTRIB);
+
+  // texture coord attribute
+  glVertexAttribPointer(TEXTURE_ATTRIB, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(6 * sizeof(float)));
+  glEnableVertexAttribArray(TEXTURE_ATTRIB);
 
   // note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex
   // attribute's bound vertex buffer object so afterwards we can safely unbind
@@ -118,12 +143,36 @@ void Renderer::UseProgram() {
 
 
 void Renderer::RenderFrame() {
+  // Bind Textures
+  for (auto & texture_obj : texture_objs) {
+    texture_obj.Bind();
+  }
+
   UseProgram();
   glBindVertexArray(vertex_array_obj);  // seeing as we only have a single VAO there's no need to
                                         // bind it every time, but we'll do so to keep things a
                                         // bit more organized
-  glDrawArrays(GL_TRIANGLES, 0, 3);
+  // glDrawArrays(GL_TRIANGLES, 0, 3);
+  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);  // when using EBO
   // glBindVertexArray(0); // no need to unbind it every time
+}
+
+
+/**
+ * Should be called after OnSurfaceCreated()
+ * @param env
+ * @param bitmap
+ */
+void Renderer::LoadTextureFromBitmap(JNIEnv* env, jobject bitmap) {
+  Texture texture;
+
+  bool status = texture.LoadTextureFromBitmap(env, bitmap);
+  if ( !status ) {
+    LOGE("Failed Loading texture");
+    abort();
+  }
+
+  texture_objs.push_back(texture);
 }
 
 }   // namespace ndk_opengl_app

@@ -14,6 +14,12 @@
 #include <GLES3/gl3.h>
 #endif
 
+#include <jni.h>
+
+#include <vector>
+#include <string>
+
+#include "Texture.h"
 #include "utils.h"
 
 namespace ndk_opengl_app {
@@ -30,12 +36,17 @@ class Renderer {
 
   void UseProgram();
 
+  void LoadTextureFromBitmap(JNIEnv* env, jobject bitmap);
+
+
  private:
   GLuint shader_program;
 
   GLuint vertex_array_obj;
   GLuint vertex_buffer_obj;
   GLuint element_buffer_obj;
+
+  std::vector<Texture> texture_objs;
 };
 
 }   // namespace ndk_opengl_app

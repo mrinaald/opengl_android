@@ -29,6 +29,8 @@ class NativeOpenGLApp {
 
   void OnSurfaceChanged(int width, int height);
 
+  void LoadTextureFromBitmap(JNIEnv* env, jobject bitmap);
+
 
  private:
   int screen_width;

@@ -6,6 +6,7 @@
 #define OPENGLANDROID_UTILS_H
 
 #include <android/asset_manager.h>
+#include <android/log.h>
 #include <jni.h>
 
 #include <array>

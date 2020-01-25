@@ -12,6 +12,8 @@ import javax.microedition.khronos.opengles.GL10
 import android.content.pm.ConfigurationInfo
 import android.app.ActivityManager
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 
 
 class MainActivity : AppCompatActivity() {
@@ -87,8 +89,15 @@ class MainActivity : AppCompatActivity() {
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
       nativeOnSurfaceCreated(nativeApp)
+      loadTextureFiles()
     }
 
+  }
+
+  private fun loadTextureFiles() {
+    var bitmap = BitmapFactory.decodeStream(assets.open("container.jpg"))
+
+    nativeLoadTextureFromBitmap(nativeApp, bitmap)
   }
 
   companion object {
@@ -112,4 +121,6 @@ class MainActivity : AppCompatActivity() {
   external fun nativeOnSurfaceChanged(nativeApp: Long, width: Int, height: Int)
 
   external fun nativeOnDrawFrame(nativeApp: Long)
+
+  external fun nativeLoadTextureFromBitmap(nativeApp: Long, bitmap: Bitmap)
 }
