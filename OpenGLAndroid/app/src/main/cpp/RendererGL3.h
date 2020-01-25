@@ -20,6 +20,7 @@
 #include <string>
 
 #include "Texture.h"
+#include "GLMath.h"
 #include "utils.h"
 
 namespace ndk_opengl_app {

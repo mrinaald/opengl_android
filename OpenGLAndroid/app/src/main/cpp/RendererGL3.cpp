@@ -12,19 +12,21 @@ namespace {
 #define STRV(s) STR(s)
 
 #define POS_ATTRIB 0
-#define COLOR_ATTRIB 1
-#define TEXTURE_ATTRIB 2
+#define TEXTURE_ATTRIB 1
+#define COLOR_ATTRIB 2
 
 constexpr const char* VERTEX_SHADER =
         "#version 300 es\n"
         "layout (location = " STRV(POS_ATTRIB) ") in vec3 aPos;\n"
-        "layout (location = " STRV(COLOR_ATTRIB) ") in vec3 aColor;\n"
         "layout (location = " STRV(TEXTURE_ATTRIB) ") in vec2 aTexCoord;\n"
-        "out vec3 ourColor;\n"
+        "// layout (location = " STRV(COLOR_ATTRIB) ") in vec3 aColor;\n"
+        "\n"
+        "// out vec3 ourColor;\n"
         "out vec2 TexCoord;\n"
+        "uniform mat4 transform;\n"
+        "\n"
         "void main() {\n"
-        "  gl_Position = vec4(aPos, 1.0);\n"
-        "  ourColor = aColor;\n"
+        "  gl_Position = transform * vec4(aPos, 1.0);\n"
         "  TexCoord = vec2(aTexCoord.x, aTexCoord.y);\n"
         "}\n";
 
@@ -34,7 +36,7 @@ constexpr const char* FRAGMENT_SHADER =
         precision mediump float;
         out vec4 FragColor;
 
-        in vec3 ourColor;
+        // in vec3 ourColor;
         in vec2 TexCoord;
 
         // texture sampler
@@ -50,11 +52,11 @@ constexpr const char* FRAGMENT_SHADER =
 
 
 float vertices[] = {
-        // positions          // colors           // texture coords
-        0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // top right
-        0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, // bottom right
-        -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // bottom left
-        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  // top left
+        // positions          // texture coords
+        0.5f,  0.5f, 0.0f,   1.0f, 1.0f, // top right
+        0.5f, -0.5f, 0.0f,   1.0f, 0.0f, // bottom right
+        -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, // bottom left
+        -0.5f,  0.5f, 0.0f,   0.0f, 1.0f  // top left
 };
 
 unsigned int indices[] = {
@@ -118,15 +120,15 @@ void Renderer::Initialize() {
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
   // position attribute
-  glVertexAttribPointer(POS_ATTRIB, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)0);
+  glVertexAttribPointer(POS_ATTRIB, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
   glEnableVertexAttribArray(POS_ATTRIB);
 
-  // color attribute
-  glVertexAttribPointer(COLOR_ATTRIB, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(3 * sizeof(float)));
-  glEnableVertexAttribArray(COLOR_ATTRIB);
+  // // color attribute
+  // glVertexAttribPointer(COLOR_ATTRIB, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(3 * sizeof(float)));
+  // glEnableVertexAttribArray(COLOR_ATTRIB);
 
   // texture coord attribute
-  glVertexAttribPointer(TEXTURE_ATTRIB, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(6 * sizeof(float)));
+  glVertexAttribPointer(TEXTURE_ATTRIB, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(3 * sizeof(float)));
   glEnableVertexAttribArray(TEXTURE_ATTRIB);
 
   // note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex
@@ -151,7 +153,13 @@ void Renderer::RenderFrame() {
     texture_obj.Bind();
   }
 
+  // create transformations
+  glmath::Matrix4x4 transform;          // make sure to initialize matrix to identity matrix first
+  transform.Translate(glmath::Vec3{0.5f, -0.5f, 0.0f});
+
   UseProgram();
+  GLint transform_loc = glGetUniformLocation(shader_program, "transform");
+  glUniformMatrix4fv(transform_loc, 1, GL_FALSE, transform.ToGlArray().data());
   glBindVertexArray(vertex_array_obj);  // seeing as we only have a single VAO there's no need to
                                         // bind it every time, but we'll do so to keep things a
                                         // bit more organized
