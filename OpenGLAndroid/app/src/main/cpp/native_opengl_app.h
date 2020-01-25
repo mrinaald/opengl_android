@@ -7,49 +7,36 @@
 
 #include <jni.h>
 
-#include <memory>
-#include <thread>
-#include <vector>
-
-// Include the latest possible header file( GL version header )
-#if __ANDROID_API__ >= 24
-#include <GLES3/gl32.h>
-#elif __ANDROID_API__ >= 21
-#include <GLES3/gl31.h>
-#else
-#include <GLES3/gl3.h>
-#endif
+#include "RendererGL3.h"
 
 #include "utils.h"
 
 namespace ndk_opengl_app {
 
-  class NativeOpenGLApp {
-   public:
-    NativeOpenGLApp(JavaVM* vm);
+class NativeOpenGLApp {
+ public:
+  NativeOpenGLApp(JavaVM* vm);
 
-    ~NativeOpenGLApp();
+  ~NativeOpenGLApp();
 
-    void OnPause();
+  void OnPause();
 
-    void OnResume();
+  void OnResume();
 
-    void OnSurfaceCreated(JNIEnv* env);
+  void OnSurfaceCreated(JNIEnv* env);
 
-    void OnDrawFrame();
+  void OnDrawFrame();
 
-    void OnSurfaceChanged(int width, int height);
+  void OnSurfaceChanged(int width, int height);
 
 
-   private:
-    int screen_width;
-    int screen_height;
+ private:
+  int screen_width;
+  int screen_height;
 
-    GLuint shader_program;
+  Renderer renderer;
+};
 
-    GLuint vertex_array_obj;
-    GLuint vertex_buffer_obj;
-  };
-}
+} // namespace ndk_opengl_app
 
 #endif //OPENGLANDROID_NATIVE_OPENGL_APP_H
