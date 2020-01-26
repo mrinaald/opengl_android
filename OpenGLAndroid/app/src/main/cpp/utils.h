@@ -50,6 +50,14 @@ void CheckGlError(const char* file, int line, const char* label);
  * @return The shader object handler, or 0 if there's an error.
  */
 GLuint LoadGLShader(GLenum type, const char* shader_source);
+
+
+/**
+ * Gets monotonic time in seconds.
+ *
+ * @return Monotonic time in seconds
+ */
+long GetMonotonicTimeMilliSecs();
 }
 
 

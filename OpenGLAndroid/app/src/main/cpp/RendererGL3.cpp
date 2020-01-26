@@ -53,17 +53,49 @@ constexpr const char* FRAGMENT_SHADER =
         })glsl";
 
 
+// Vertices for a Cube
 float vertices[] = {
-        // positions          // texture coords
-        0.5f,  0.5f, 0.0f,   1.0f, 1.0f, // top right
-        0.5f, -0.5f, 0.0f,   1.0f, 0.0f, // bottom right
-        -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, // bottom left
-        -0.5f,  0.5f, 0.0f,   0.0f, 1.0f  // top left
-};
+        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+        0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
 
-unsigned int indices[] = {
-        0, 1, 3, // first triangle
-        1, 2, 3  // second triangle
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+        0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+        0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+        0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+        0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 };
 
 }   // anonymous namespace
@@ -81,7 +113,7 @@ Renderer::Renderer()
 Renderer::~Renderer() {
   glDeleteVertexArrays(1, &vertex_array_obj);
   glDeleteBuffers(1, &vertex_buffer_obj);
-  glDeleteBuffers(1, &element_buffer_obj);
+  // glDeleteBuffers(1, &element_buffer_obj);
 }
 
 
@@ -91,15 +123,14 @@ void Renderer::Initialize() {
   const GLuint fragment_shader =
           LoadGLShader(GL_FRAGMENT_SHADER, FRAGMENT_SHADER);
 
+  glEnable(GL_DEPTH_TEST);
+
   shader_program = glCreateProgram();
   glAttachShader(shader_program, vertex_shader);
   glAttachShader(shader_program, fragment_shader);
   glLinkProgram(shader_program);
 
   CHECKGLERROR("Compile Shader program");
-
-  glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-  glClear(GL_COLOR_BUFFER_BIT);
 
   // According to "https://learnopengl.com/Getting-started/Hello-Triangle"
   // it is okay to delete shader objects after linking
@@ -110,7 +141,7 @@ void Renderer::Initialize() {
   // Creating Vertex Buffer Objects and Vertex Buffer Arrays
   glGenVertexArrays(1, &vertex_array_obj);
   glGenBuffers(1, &vertex_buffer_obj);
-  glGenBuffers(1, &element_buffer_obj);
+  // glGenBuffers(1, &element_buffer_obj);
 
   // bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
   glBindVertexArray(vertex_array_obj);
@@ -119,9 +150,9 @@ void Renderer::Initialize() {
   glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_obj);
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-  // Allocate and store Element Array Buffer
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, element_buffer_obj);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+  // // Allocate and store Element Array Buffer
+  // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, element_buffer_obj);
+  // glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
   // position attribute
   glVertexAttribPointer(POS_ATTRIB, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
@@ -152,6 +183,9 @@ void Renderer::UseProgram() {
 
 
 void Renderer::RenderFrame() {
+  glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
   // Bind Textures
   for (auto & texture_obj : texture_objs) {
     texture_obj.Bind();
@@ -159,7 +193,8 @@ void Renderer::RenderFrame() {
 
   // create transformations
   glmath::Matrix4x4 model;          // make sure to initialize matrix to identity matrix first
-  model.Rotate(glmath::DegToRad(-55.0f), glmath::Vec3{1.0f, 0.0f, 0.0f});
+  model.Rotate(static_cast<float>(GetMonotonicTimeMilliSecs()) * 0.01f * glmath::DegToRad(15.0f),
+          glmath::Vec3{0.5f, 1.0f, 0.0f});
 
   glmath::Matrix4x4 view;
   view.Translate(glmath::Vec3{0.0f, 0.0f, -3.0f});
@@ -168,6 +203,7 @@ void Renderer::RenderFrame() {
   projection.SetToPerspective(glmath::DegToRad(45.0f), ((float)screen_width) / screen_height, 0.1f, 100.0f);
 
   UseProgram();
+
   GLint model_loc = glGetUniformLocation(shader_program, "model");
   glUniformMatrix4fv(model_loc, 1, GL_FALSE, model.ToGlArray().data());
 
@@ -176,11 +212,12 @@ void Renderer::RenderFrame() {
 
   GLint projection_loc = glGetUniformLocation(shader_program, "projection");
   glUniformMatrix4fv(projection_loc, 1, GL_FALSE, projection.ToGlArray().data());
+
   glBindVertexArray(vertex_array_obj);  // seeing as we only have a single VAO there's no need to
                                         // bind it every time, but we'll do so to keep things a
                                         // bit more organized
-  // glDrawArrays(GL_TRIANGLES, 0, 3);
-  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);  // when using EBO
+  glDrawArrays(GL_TRIANGLES, 0, 36);
+  // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);  // when using EBO
   // glBindVertexArray(0); // no need to unbind it every time
 }
 
