@@ -23,10 +23,12 @@ constexpr const char* VERTEX_SHADER =
         "\n"
         "// out vec3 ourColor;\n"
         "out vec2 TexCoord;\n"
-        "uniform mat4 transform;\n"
+        "uniform mat4 model;\n"
+        "uniform mat4 view;\n"
+        "uniform mat4 projection;\n"
         "\n"
         "void main() {\n"
-        "  gl_Position = transform * vec4(aPos, 1.0);\n"
+        "  gl_Position = projection * view * model * vec4(aPos, 1.0);\n"
         "  TexCoord = vec2(aTexCoord.x, aTexCoord.y);\n"
         "}\n";
 
@@ -71,7 +73,9 @@ Renderer::Renderer()
         : shader_program(0),
           vertex_array_obj(0),
           vertex_buffer_obj(0),
-          element_buffer_obj(0) {}
+          element_buffer_obj(0),
+          screen_width(0),
+          screen_height(0) {}
 
 
 Renderer::~Renderer() {
@@ -154,20 +158,36 @@ void Renderer::RenderFrame() {
   }
 
   // create transformations
-  glmath::Matrix4x4 transform;          // make sure to initialize matrix to identity matrix first
-  transform.Scale(glmath::Vec3{0.5f, 1.0f, 1.0f});
-  transform.Rotate(glmath::DegToRad(90), glmath::Vec3{0.0f, 0.0f, 1.0f});
-  transform.Translate(glmath::Vec3{0.5f, -0.5f, 0.0f});
+  glmath::Matrix4x4 model;          // make sure to initialize matrix to identity matrix first
+  model.Rotate(glmath::DegToRad(-55.0f), glmath::Vec3{1.0f, 0.0f, 0.0f});
+
+  glmath::Matrix4x4 view;
+  view.Translate(glmath::Vec3{0.0f, 0.0f, -3.0f});
+
+  glmath::Matrix4x4 projection;
+  projection.SetToPerspective(glmath::DegToRad(45.0f), ((float)screen_width) / screen_height, 0.1f, 100.0f);
 
   UseProgram();
-  GLint transform_loc = glGetUniformLocation(shader_program, "transform");
-  glUniformMatrix4fv(transform_loc, 1, GL_FALSE, transform.ToGlArray().data());
+  GLint model_loc = glGetUniformLocation(shader_program, "model");
+  glUniformMatrix4fv(model_loc, 1, GL_FALSE, model.ToGlArray().data());
+
+  GLint view_loc = glGetUniformLocation(shader_program, "view");
+  glUniformMatrix4fv(view_loc, 1, GL_FALSE, view.ToGlArray().data());
+
+  GLint projection_loc = glGetUniformLocation(shader_program, "projection");
+  glUniformMatrix4fv(projection_loc, 1, GL_FALSE, projection.ToGlArray().data());
   glBindVertexArray(vertex_array_obj);  // seeing as we only have a single VAO there's no need to
                                         // bind it every time, but we'll do so to keep things a
                                         // bit more organized
   // glDrawArrays(GL_TRIANGLES, 0, 3);
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);  // when using EBO
   // glBindVertexArray(0); // no need to unbind it every time
+}
+
+
+void Renderer::SetScreenParams(const int width, const int height) {
+  screen_width = width;
+  screen_height = height;
 }
 
 

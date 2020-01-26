@@ -77,7 +77,7 @@ class Matrix4x4 {
   // Construct Matrix from GLArray
   Matrix4x4(float *gl_vec);
 
-  // Construct from Quaternion Rotation Matrix
+  // Construct Rotation Matrix from Quaternions
   void FromQuaternion(float q[4]);
 
   // Multiplies two matrices.
@@ -98,6 +98,14 @@ class Matrix4x4 {
   // Rotate Matrix
   void Rotate(const float rad_angle, const Vec3& vec);
 
+  // Create Orthographic Projection Matrix
+  void SetToOrthographic(float l, float r, float b, float t, float n, float f);
+
+  // Create Perspective Projection Matrix
+  void SetToPerspective(float fovy, float aspect_ratio, float near, float far);
+
+  // Set to Identity Matrix
+  void SetToIdentity();
 
  private:
   float mat[4][4];

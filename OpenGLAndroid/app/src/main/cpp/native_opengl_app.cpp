@@ -38,6 +38,7 @@ void NativeOpenGLApp::OnDrawFrame() {
 void NativeOpenGLApp::OnSurfaceChanged(int width, int height) {
   screen_width = width;
   screen_height = height;
+  renderer.SetScreenParams(width, height);
 }
 
 

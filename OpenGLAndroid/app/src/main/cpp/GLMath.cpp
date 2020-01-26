@@ -86,7 +86,7 @@ Matrix4x4::Matrix4x4(float *gl_vec) {
   memcpy(mat, gl_vec, 16 * sizeof(float));
 }
 
-// Construct from Quaternion Rotation Matrix
+// Construct Rotation Matrix from Quaternions
 // NOTE: This function WILL REPLACE the contents of the matrix
 void Matrix4x4::FromQuaternion(float q[4]) {
   const float x = q[0];
@@ -194,6 +194,61 @@ void Matrix4x4::Rotate(const float rad_angle, const glmath::Vec3 &vec) {
   rmat.FromQuaternion(quaternion);
 
   *this = rmat * (*this);
+}
+
+// NOTE: This function WILL REPLACE the contents of the matrix
+void Matrix4x4::SetToOrthographic(float left, float right,
+        float bottom, float top,
+        float near, float far) {
+
+  this->SetToIdentity();
+
+  this->mat[0][0] = (2) / (right - left);
+  this->mat[1][1] = (2) / (top - bottom);
+  this->mat[2][2] = - (2) / (far - near);
+  this->mat[3][0] = - (right + left) / (right - left);
+  this->mat[3][1] = - (top + bottom) / (top - bottom);
+  this->mat[3][2] = - (far + near) / (far - near);
+}
+
+// NOTE: This function WILL REPLACE the contents of the matrix
+void Matrix4x4::SetToPerspective(float fovy, float aspect_ratio, float near, float far) {
+  if (std::abs(aspect_ratio - std::numeric_limits<float>::epsilon()) <= 0) {
+    // aspect ratio is very small.
+    abort();
+  }
+
+  const float tan_half_fovy = std::tan( fovy / 2.0f);
+  this->SetToIdentity();
+
+  this->mat[0][0] = (1) / (aspect_ratio * tan_half_fovy);
+  this->mat[1][1] = (1) / (tan_half_fovy);
+  this->mat[2][2] = - (far + near) / (far - near);
+  this->mat[2][3] = - (1);
+  this->mat[3][2] = - (2 * far * near) / (far - near);
+}
+
+// NOTE: This function WILL REPLACE the contents of the matrix
+void Matrix4x4::SetToIdentity() {
+  this->mat[0][0] = 1.0f;
+  this->mat[0][1] = 0.0f;
+  this->mat[0][2] = 0.0f;
+  this->mat[0][3] = 0.0f;
+
+  this->mat[1][0] = 0.0f;
+  this->mat[1][1] = 1.0f;
+  this->mat[1][2] = 0.0f;
+  this->mat[1][3] = 0.0f;
+
+  this->mat[2][0] = 0.0f;
+  this->mat[2][1] = 0.0f;
+  this->mat[2][2] = 1.0f;
+  this->mat[2][3] = 0.0f;
+
+  this->mat[3][0] = 0.0f;
+  this->mat[3][1] = 0.0f;
+  this->mat[3][2] = 0.0f;
+  this->mat[3][3] = 1.0f;
 }
 
 /* ** End of Matrix4x4 Defintions ** */

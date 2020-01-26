@@ -37,6 +37,8 @@ class Renderer {
 
   void UseProgram();
 
+  void SetScreenParams(const int width, const int height);
+
   void LoadTextureFromBitmap(JNIEnv* env, jobject bitmap, int new_active_texture_id);
 
 
@@ -48,6 +50,9 @@ class Renderer {
   GLuint element_buffer_obj;
 
   std::vector<Texture> texture_objs;
+
+  int screen_width;
+  int screen_height;
 };
 
 }   // namespace ndk_opengl_app
