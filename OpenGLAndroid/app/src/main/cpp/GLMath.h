@@ -10,6 +10,8 @@
 
 namespace glmath {
 
+float DegToRad(const float deg);
+
 class Vec3 {
  public:
   Vec3();
@@ -92,6 +94,9 @@ class Matrix4x4 {
 
   // Scale Matrix
   void Scale(const Vec3& vec);
+
+  // Rotate Matrix
+  void Rotate(const float rad_angle, const Vec3& vec);
 
 
  private:

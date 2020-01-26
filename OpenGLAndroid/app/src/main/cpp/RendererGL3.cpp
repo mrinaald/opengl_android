@@ -155,6 +155,8 @@ void Renderer::RenderFrame() {
 
   // create transformations
   glmath::Matrix4x4 transform;          // make sure to initialize matrix to identity matrix first
+  transform.Scale(glmath::Vec3{0.5f, 1.0f, 1.0f});
+  transform.Rotate(glmath::DegToRad(90), glmath::Vec3{0.0f, 0.0f, 1.0f});
   transform.Translate(glmath::Vec3{0.5f, -0.5f, 0.0f});
 
   UseProgram();

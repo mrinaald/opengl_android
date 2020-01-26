@@ -6,6 +6,10 @@
 
 namespace glmath {
 
+float DegToRad(const float deg) {
+  return (float) ((deg * M_PI) / 180);
+}
+
 /* ** Vec3 Defintions ** */
 
 Vec3::Vec3() : Vec3(0, 0, 0) {}
@@ -172,6 +176,24 @@ void Matrix4x4::Scale(const glmath::Vec3 &vec) {
   smat.mat[3][3] = 1.0f;
 
   *this = smat * (*this);
+}
+
+void Matrix4x4::Rotate(const float rad_angle, const glmath::Vec3 &vec) {
+  float sin_theta = std::sin(rad_angle / 2);
+  float cos_theta = std::cos(rad_angle / 2);
+
+  float norm = std::sqrt((vec[0]*vec[0]) + (vec[1]*vec[1]) + (vec[2]*vec[2]));
+
+  float quaternion[4];
+  quaternion[0] = (vec[0] / norm) * sin_theta;
+  quaternion[1] = (vec[1] / norm) * sin_theta;
+  quaternion[2] = (vec[2] / norm) * sin_theta;
+  quaternion[3] = cos_theta;
+
+  Matrix4x4 rmat;
+  rmat.FromQuaternion(quaternion);
+
+  *this = rmat * (*this);
 }
 
 /* ** End of Matrix4x4 Defintions ** */
