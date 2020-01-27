@@ -21,8 +21,14 @@ class Vec3 {
   // Dot product with another Vec3
   float Dot(const Vec3& vec3) const;
 
+  // Cross product with another Vec3
+  Vec3 Cross(const Vec3& vec3) const;
+
   // Vector Norm
   float Norm() const;
+
+  // Normalize Vector
+  void Normalize();
 
   float AngleWithVector(const Vec3& vec3) const;
 
@@ -31,6 +37,10 @@ class Vec3 {
 
   // For easier setting
   float & operator [](const int i) { return vec[i]; }
+
+  Vec3 operator+(const Vec3& rhs) const;
+
+  Vec3 operator-(const Vec3& rhs) const;
 
 
  private:
@@ -50,6 +60,9 @@ class Vec4 {
   // Vector Norm
   float Norm() const;
 
+  // Normalize Vector
+  void Normalize();
+
   float AngleWithVector(const Vec4& vec4) const;
 
   // For easier getting
@@ -58,6 +71,9 @@ class Vec4 {
   // For easier setting
   float & operator [](const int i) { return vec[i]; }
 
+  Vec4 operator+(const Vec4& rhs) const;
+
+  Vec4 operator-(const Vec4& rhs) const;
 
  private:
   std::array<float, 4> vec;
@@ -106,6 +122,9 @@ class Matrix4x4 {
 
   // Set to Identity Matrix
   void SetToIdentity();
+
+  // Set to LookAt Matrix
+  void SetToLookAt(const Vec3& eye, const Vec3& center, const Vec3& up);
 
  private:
   float mat[4][4];

@@ -56,16 +56,16 @@ constexpr const char* FRAGMENT_SHADER =
 // Vertices for a Cube
 float vertices[] = {
         -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-        0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
         -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
         -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
 
         -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-        0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-        0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
         -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
         -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
 
@@ -76,26 +76,40 @@ float vertices[] = {
         -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
         -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
 
-        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
 
         -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-        0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-        0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
         -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
         -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
 
         -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
         -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
         -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+};
+
+// world space positions of our cubes
+glmath::Vec3 cubePositions[] = {
+        glmath::Vec3( 0.0f,  0.0f,  0.0f ),
+        glmath::Vec3( 2.0f,  5.0f, -15.0f),
+        glmath::Vec3(-1.5f, -2.2f, -2.5f ),
+        glmath::Vec3(-3.8f, -2.0f, -12.3f),
+        glmath::Vec3( 2.4f, -0.4f, -3.5f ),
+        glmath::Vec3(-1.7f,  3.0f, -7.5f ),
+        glmath::Vec3( 1.3f, -2.0f, -2.5f ),
+        glmath::Vec3( 1.5f,  2.0f, -2.5f ),
+        glmath::Vec3( 1.5f,  0.2f, -1.5f ),
+        glmath::Vec3(-1.3f,  1.0f, -1.5f )
 };
 
 }   // anonymous namespace
@@ -192,31 +206,34 @@ void Renderer::RenderFrame() {
   }
 
   // create transformations
-  glmath::Matrix4x4 model;          // make sure to initialize matrix to identity matrix first
-  model.Rotate(static_cast<float>(GetMonotonicTimeMilliSecs()) * 0.01f * glmath::DegToRad(15.0f),
-          glmath::Vec3{0.5f, 1.0f, 0.0f});
-
+  float radius = 10.0f;
+  float angle = GetMonotonicTimeMilliSecs() * 0.005f;
+  float camX   = sin(angle) * radius;
+  float camZ   = cos(angle) * radius;
   glmath::Matrix4x4 view;
-  view.Translate(glmath::Vec3{0.0f, 0.0f, -3.0f});
-
-  glmath::Matrix4x4 projection;
-  projection.SetToPerspective(glmath::DegToRad(45.0f), ((float)screen_width) / screen_height, 0.1f, 100.0f);
+  view.SetToLookAt(glmath::Vec3(camX, 0.0f, camZ),
+          glmath::Vec3(0.0f, 0.0f, 0.0f),
+          glmath::Vec3(0.0f, 1.0f, 0.0f));
 
   UseProgram();
-
-  GLint model_loc = glGetUniformLocation(shader_program, "model");
-  glUniformMatrix4fv(model_loc, 1, GL_FALSE, model.ToGlArray().data());
 
   GLint view_loc = glGetUniformLocation(shader_program, "view");
   glUniformMatrix4fv(view_loc, 1, GL_FALSE, view.ToGlArray().data());
 
-  GLint projection_loc = glGetUniformLocation(shader_program, "projection");
-  glUniformMatrix4fv(projection_loc, 1, GL_FALSE, projection.ToGlArray().data());
-
   glBindVertexArray(vertex_array_obj);  // seeing as we only have a single VAO there's no need to
                                         // bind it every time, but we'll do so to keep things a
                                         // bit more organized
-  glDrawArrays(GL_TRIANGLES, 0, 36);
+
+  GLint model_loc = glGetUniformLocation(shader_program, "model");
+  for (int i=0; i<10; ++i) {
+    glmath::Matrix4x4 model;
+    model.Translate(cubePositions[i]);
+    float angle = 20.0f * i;
+    model.Rotate(glmath::DegToRad(angle), glmath::Vec3(1.0f, 0.3f, 0.5f));
+    glUniformMatrix4fv(model_loc, 1, GL_FALSE, model.ToGlArray().data());
+
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+  }
   // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);  // when using EBO
   // glBindVertexArray(0); // no need to unbind it every time
 }
@@ -225,6 +242,17 @@ void Renderer::RenderFrame() {
 void Renderer::SetScreenParams(const int width, const int height) {
   screen_width = width;
   screen_height = height;
+
+  LOGD("Screen Params (WxH): %d x %d", width, height);
+  // pass projection matrix to shader (as projection matrix rarely changes there's no
+  // need to do this per frame)
+  UseProgram();
+  glmath::Matrix4x4 projection;
+  projection.SetToPerspective(glmath::DegToRad(45.0f),
+                              ((float)screen_width) / screen_height, 0.1f, 100.0f);
+
+  GLint projection_loc = glGetUniformLocation(shader_program, "projection");
+  glUniformMatrix4fv(projection_loc, 1, GL_FALSE, projection.ToGlArray().data());
 }
 
 

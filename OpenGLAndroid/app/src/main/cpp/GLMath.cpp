@@ -21,13 +21,43 @@ float Vec3::Dot(const glmath::Vec3 &vec3) const {
   return (vec[0]*vec3[0]) + (vec[1]*vec3[1]) + (vec[2]*vec3[2]);
 }
 
+Vec3 Vec3::Cross(const glmath::Vec3 &vec3) const {
+  Vec3 result;
+
+  result[0] = (vec[1] * vec3[2]) - (vec[2] * vec3[1]);
+  result[1] = (vec[2] * vec3[0]) - (vec[0] * vec3[2]);
+  result[2] = (vec[0] * vec3[1]) - (vec[1] * vec3[0]);
+
+  return result;
+}
+
 float Vec3::Norm() const {
   return std::sqrt((vec[0]*vec[0]) + (vec[1]*vec[1]) + (vec[2]*vec[2]));
+}
+
+// NOTE: This function WILL REPLACE the contents of the Vector
+void Vec3::Normalize() {
+  float norm = this->Norm();
+  this->vec[0] /= norm;
+  this->vec[1] /= norm;
+  this->vec[2] /= norm;
 }
 
 float Vec3::AngleWithVector(const glmath::Vec3 &vec3) const {
   float norm_dot = Dot(vec3) / (Norm() * vec3.Norm());
   return std::acos(std::max(-1.0f, std::min(1.0f, norm_dot)));
+}
+
+Vec3 Vec3::operator+(const glmath::Vec3 &rhs) const {
+  return {this->vec[0] + rhs[0],
+          this->vec[1] + rhs[1],
+          this->vec[2] + rhs[2]};
+}
+
+Vec3 Vec3::operator-(const glmath::Vec3 &rhs) const {
+  return {this->vec[0] - rhs[0],
+          this->vec[1] - rhs[1],
+          this->vec[2] - rhs[2]};
 }
 
 /* ** End of Vec3 Defintions ** */
@@ -45,13 +75,37 @@ float Vec4::Dot(const glmath::Vec4 &vec4) const {
 }
 
 float Vec4::Norm() const {
-  return std::sqrt((vec[0]*vec[0]) + (vec[1]*vec[1]) + (vec[2]*vec[2]));
+  return std::sqrt((vec[0]*vec[0]) + (vec[1]*vec[1]) + (vec[2]*vec[2]) + (vec[3]*vec[3]));
+}
+
+// NOTE: This function WILL REPLACE the contents of the Vector
+void Vec4::Normalize() {
+  float norm = this->Norm();
+  this->vec[0] /= norm;
+  this->vec[1] /= norm;
+  this->vec[2] /= norm;
+  this->vec[3] /= norm;
 }
 
 float Vec4::AngleWithVector(const glmath::Vec4 &vec4) const {
   float norm_dot = Dot(vec4) / (Norm() * vec4.Norm());
   return std::acos(std::max(-1.0f, std::min(1.0f, norm_dot)));
 }
+
+Vec4 Vec4::operator+(const glmath::Vec4 &rhs) const {
+  return {this->vec[0] + rhs[0],
+          this->vec[1] + rhs[1],
+          this->vec[2] + rhs[2],
+          this->vec[3] + rhs[3]};
+}
+
+Vec4 Vec4::operator-(const glmath::Vec4 &rhs) const {
+  return {this->vec[0] - rhs[0],
+          this->vec[1] - rhs[1],
+          this->vec[2] - rhs[2],
+          this->vec[3] - rhs[3]};
+}
+
 
 /* ** End of Vec4 Defintions ** */
 
@@ -165,7 +219,7 @@ void Matrix4x4::Translate(const glmath::Vec3 &vec) {
   tmat.mat[3][2] = vec[2];
   tmat.mat[3][3] = 1.0f;
 
-  *this = tmat * (*this);
+  *this = (*this) * tmat;
 }
 
 void Matrix4x4::Scale(const glmath::Vec3 &vec) {
@@ -175,14 +229,14 @@ void Matrix4x4::Scale(const glmath::Vec3 &vec) {
   smat.mat[2][2] = vec[2];
   smat.mat[3][3] = 1.0f;
 
-  *this = smat * (*this);
+  *this = (*this) * smat;
 }
 
-void Matrix4x4::Rotate(const float rad_angle, const glmath::Vec3 &vec) {
+void Matrix4x4::Rotate(const float rad_angle, const Vec3 &vec) {
   float sin_theta = std::sin(rad_angle / 2);
   float cos_theta = std::cos(rad_angle / 2);
 
-  float norm = std::sqrt((vec[0]*vec[0]) + (vec[1]*vec[1]) + (vec[2]*vec[2]));
+  float norm = vec.Norm();
 
   float quaternion[4];
   quaternion[0] = (vec[0] / norm) * sin_theta;
@@ -193,7 +247,7 @@ void Matrix4x4::Rotate(const float rad_angle, const glmath::Vec3 &vec) {
   Matrix4x4 rmat;
   rmat.FromQuaternion(quaternion);
 
-  *this = rmat * (*this);
+  *this = (*this) * rmat;
 }
 
 // NOTE: This function WILL REPLACE the contents of the matrix
@@ -251,6 +305,32 @@ void Matrix4x4::SetToIdentity() {
   this->mat[3][3] = 1.0f;
 }
 
+// NOTE: This function WILL REPLACE the contents of the matrix
+void Matrix4x4::SetToLookAt(const Vec3 &eye, const Vec3 &center,
+                            const Vec3 &up) {
+
+  Vec3 direction = (eye - center);
+  direction.Normalize();
+
+  Vec3 right = up.Cross(direction);
+  right.Normalize();
+
+  Vec3 cam_up = direction.Cross(right);
+  cam_up.Normalize();
+
+  this->mat[0][0] = right[0];
+  this->mat[1][0] = right[1];
+  this->mat[2][0] = right[2];
+  this->mat[0][1] = cam_up[0];
+  this->mat[1][1] = cam_up[1];
+  this->mat[2][1] = cam_up[2];
+  this->mat[0][2] = direction[0];
+  this->mat[1][2] = direction[1];
+  this->mat[2][2] = direction[2];
+  this->mat[3][0] = -right.Dot(eye);
+  this->mat[3][1] = -cam_up.Dot(eye);
+  this->mat[3][2] = -direction.Dot(eye);
+}
 /* ** End of Matrix4x4 Defintions ** */
 
 }   // namespace glmath
