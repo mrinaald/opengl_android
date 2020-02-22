@@ -20,6 +20,7 @@
 #include <string>
 
 #include "Texture.h"
+#include "Camera.h"
 #include "GLMath.h"
 #include "utils.h"
 
@@ -41,6 +42,10 @@ class Renderer {
 
   void LoadTextureFromBitmap(JNIEnv* env, jobject bitmap, int new_active_texture_id);
 
+  void OnViewReset();
+
+  void OnSwitchGestureMode(int mode);
+
 
  private:
   GLuint shader_program;
@@ -50,6 +55,8 @@ class Renderer {
   GLuint element_buffer_obj;
 
   std::vector<Texture> texture_objs;
+
+  Camera* camera;
 
   int screen_width;
   int screen_height;

@@ -121,13 +121,17 @@ Renderer::Renderer()
           vertex_buffer_obj(0),
           element_buffer_obj(0),
           screen_width(0),
-          screen_height(0) {}
+          screen_height(0) {
+  camera = new Camera();
+}
 
 
 Renderer::~Renderer() {
   glDeleteVertexArrays(1, &vertex_array_obj);
   glDeleteBuffers(1, &vertex_buffer_obj);
   // glDeleteBuffers(1, &element_buffer_obj);
+
+  delete camera;
 }
 
 
@@ -206,14 +210,7 @@ void Renderer::RenderFrame() {
   }
 
   // create transformations
-  float radius = 10.0f;
-  float angle = GetMonotonicTimeMilliSecs() * 0.005f;
-  float camX   = sin(angle) * radius;
-  float camZ   = cos(angle) * radius;
-  glmath::Matrix4x4 view;
-  view.SetToLookAt(glmath::Vec3(camX, 0.0f, camZ),
-          glmath::Vec3(0.0f, 0.0f, 0.0f),
-          glmath::Vec3(0.0f, 1.0f, 0.0f));
+  glmath::Matrix4x4 view = camera->GetViewMatrix();
 
   UseProgram();
 
@@ -277,6 +274,16 @@ void Renderer::LoadTextureFromBitmap(JNIEnv* env, jobject bitmap, int new_active
   glUniform1i(glGetUniformLocation(shader_program, sampler_name.c_str()), texture_objs.size());
 
   texture_objs.push_back(texture);
+}
+
+
+void Renderer::OnViewReset() {
+  camera->ResetCamera();
+}
+
+
+void Renderer::OnSwitchGestureMode(int mode) {
+  camera->SwitchGestureMode(mode);
 }
 
 }   // namespace ndk_opengl_app

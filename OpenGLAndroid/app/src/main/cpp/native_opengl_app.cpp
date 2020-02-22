@@ -13,10 +13,13 @@ NativeOpenGLApp::NativeOpenGLApp(JavaVM *vm)
           screen_height(0) {
   JNIEnv* env;
   vm->GetEnv((void**)&env, JNI_VERSION_1_6);
+  renderer = new Renderer();
 }
 
 
-NativeOpenGLApp::~NativeOpenGLApp() = default;
+NativeOpenGLApp::~NativeOpenGLApp() {
+  delete renderer;
+}
 
 
 void NativeOpenGLApp::OnPause() {}
@@ -26,24 +29,34 @@ void NativeOpenGLApp::OnResume() {}
 
 
 void NativeOpenGLApp::OnSurfaceCreated(JNIEnv *env) {
-  renderer.Initialize();
+  renderer->Initialize();
 }
 
 
 void NativeOpenGLApp::OnDrawFrame() {
-  renderer.RenderFrame();
+  renderer->RenderFrame();
 }
 
 
 void NativeOpenGLApp::OnSurfaceChanged(int width, int height) {
   screen_width = width;
   screen_height = height;
-  renderer.SetScreenParams(width, height);
+  renderer->SetScreenParams(width, height);
 }
 
 
 void NativeOpenGLApp::LoadTextureFromBitmap(JNIEnv* env, jobject bitmap, int new_active_texture_id) {
-  renderer.LoadTextureFromBitmap(env, bitmap, new_active_texture_id);
+  renderer->LoadTextureFromBitmap(env, bitmap, new_active_texture_id);
+}
+
+
+void NativeOpenGLApp::OnViewReset() {
+  renderer->OnViewReset();
+}
+
+
+void NativeOpenGLApp::OnSwitchGestureMode(int mode) {
+  renderer->OnSwitchGestureMode(mode);
 }
 
 }   // namespace ndk_opengl_app

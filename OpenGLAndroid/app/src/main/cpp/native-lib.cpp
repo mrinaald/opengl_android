@@ -94,4 +94,22 @@ Java_com_example_openglandroid_MainActivity_nativeLoadTextureFromBitmap(
   native_ptr(native_app)->LoadTextureFromBitmap(env, bitmap, new_active_texture_id);
 }
 
+JNIEXPORT void JNICALL
+Java_com_example_openglandroid_MainActivity_nativeOnViewReset(
+        JNIEnv* env,
+        jobject obj,
+        jlong native_app) {
+  native_ptr(native_app)->OnViewReset();
+}
+
+JNIEXPORT void JNICALL
+Java_com_example_openglandroid_MainActivity_nativeSetGestureMode(
+        JNIEnv* env,
+        jobject obj,
+        jlong native_app,
+        jint mode) {
+  native_ptr(native_app)->OnSwitchGestureMode(mode);
+}
+
+
 }   // extern "C"

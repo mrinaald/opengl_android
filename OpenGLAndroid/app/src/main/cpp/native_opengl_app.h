@@ -31,12 +31,16 @@ class NativeOpenGLApp {
 
   void LoadTextureFromBitmap(JNIEnv* env, jobject bitmap, int new_active_texture_id);
 
+  void OnViewReset();
+
+  void OnSwitchGestureMode(int mode);
+
 
  private:
   int screen_width;
   int screen_height;
 
-  Renderer renderer;
+  Renderer* renderer;
 };
 
 } // namespace ndk_opengl_app

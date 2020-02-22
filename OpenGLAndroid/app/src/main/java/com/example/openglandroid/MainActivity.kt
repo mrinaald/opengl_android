@@ -15,15 +15,29 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
+import android.view.View
+import android.widget.Button
 
 
 class MainActivity : AppCompatActivity() {
 
   private val TAG = MainActivity::class.java.simpleName
 
+  enum class GestureMode(val mode: Int) {
+    MODE_ROTATE(1),
+    MODE_PAN(2)
+  }
+
   private var mGLESVersion: Int = 0
   private var mSupportGL3x: Boolean = false
+
   private var nativeApp: Long = 0
+
+  private lateinit var mSwitchButton: Button
+  private var mGestureMode = GestureMode.MODE_ROTATE
+
+  private lateinit var mResetButton: Button
+
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -36,7 +50,41 @@ class MainActivity : AppCompatActivity() {
 
     gl_surface_view.setRenderer(Renderer())
     gl_surface_view.renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY
+
+    // Setting Switch Button Properties
+    mSwitchButton = findViewById(R.id.switch_pan_rotate_button)
+    if ( mGestureMode == GestureMode.MODE_ROTATE ) {
+      mSwitchButton.text = modeToTextMap[GestureMode.MODE_PAN]
+    }
+    else {
+      mSwitchButton.text = modeToTextMap[GestureMode.MODE_ROTATE]
+    }
+
+    mSwitchButton.setOnClickListener { switchGestureMode(it) }
+
+    // Setting Reset Button Properties
+    mResetButton = findViewById(R.id.reset_button)
+    mResetButton.setOnClickListener { nativeOnViewReset(nativeApp) }
   }
+
+  private fun switchGestureMode(v: View) {
+    when ( mGestureMode ) {
+      GestureMode.MODE_ROTATE -> {
+        // Switching to PAN Mode
+        mGestureMode = GestureMode.MODE_PAN
+        mSwitchButton.text = modeToTextMap[GestureMode.MODE_ROTATE]
+        nativeSetGestureMode(nativeApp, mGestureMode.mode)
+      }
+
+      GestureMode.MODE_PAN -> {
+        // Switching to ROTATE Mode
+        mGestureMode = GestureMode.MODE_ROTATE
+        mSwitchButton.text = modeToTextMap[GestureMode.MODE_PAN]
+        nativeSetGestureMode(nativeApp, mGestureMode.mode)
+      }
+    }
+  }
+
 
   override fun onPause() {
     super.onPause()
@@ -53,6 +101,7 @@ class MainActivity : AppCompatActivity() {
     nativeOnDestroy(nativeApp)
     nativeApp = 0
   }
+
 
   private fun checkGLVersionCompatibility() {
     mGLESVersion = getVersionFromActivityManager(this)
@@ -79,6 +128,7 @@ class MainActivity : AppCompatActivity() {
     }
   }
 
+
   private inner class Renderer : GLSurfaceView.Renderer {
     override fun onDrawFrame(gl: GL10?) {
       nativeOnDrawFrame(nativeApp)
@@ -95,6 +145,7 @@ class MainActivity : AppCompatActivity() {
 
   }
 
+
   private fun loadTextureFiles() {
     val options = BitmapFactory.Options()
     options.inScaled = false
@@ -106,6 +157,7 @@ class MainActivity : AppCompatActivity() {
     nativeLoadTextureFromBitmap(nativeApp, bitmap.verticalFlip(), 1)
   }
 
+
   private fun Bitmap.verticalFlip(): Bitmap {
     val cx = this.width / 2f
     val cy = this.height / 2f
@@ -113,7 +165,16 @@ class MainActivity : AppCompatActivity() {
     return Bitmap.createBitmap(this, 0, 0, width, height, mat, true)
   }
 
+
   companion object {
+
+    private const val SWITCH_TO_PAN = "Switch to PAN Mode"
+    private const val SWITCH_TO_ROTATE = "Switch to ROTATE Mode"
+
+    private val modeToTextMap = mapOf(
+                              (GestureMode.MODE_PAN to SWITCH_TO_PAN),
+                              (GestureMode.MODE_ROTATE to SWITCH_TO_ROTATE)
+                            )
 
     // Used to load the 'native-lib' library on application startup.
     init {
@@ -136,4 +197,8 @@ class MainActivity : AppCompatActivity() {
   external fun nativeOnDrawFrame(nativeApp: Long)
 
   external fun nativeLoadTextureFromBitmap(nativeApp: Long, bitmap: Bitmap, newActiveTextureId: Int)
+
+  external fun nativeOnViewReset(nativeApp: Long)
+
+  external fun nativeSetGestureMode(nativeApp: Long, mode: Int)
 }
