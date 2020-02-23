@@ -111,5 +111,25 @@ Java_com_example_openglandroid_MainActivity_nativeSetGestureMode(
   native_ptr(native_app)->OnSwitchGestureMode(mode);
 }
 
+JNIEXPORT void JNICALL
+Java_com_example_openglandroid_MainActivity_nativeOnDragGesture(
+        JNIEnv* env,
+        jobject obj,
+        jlong native_app,
+        jfloat diff_x,
+        jfloat diff_y) {
+  native_ptr(native_app)->OnDragGesture(diff_x, diff_y);
+}
+
+JNIEXPORT void JNICALL
+Java_com_example_openglandroid_MainActivity_nativeOnScaleGesture(
+        JNIEnv* env,
+        jobject obj,
+        jlong native_app,
+        jfloat scale_x,
+        jfloat scale_y) {
+  native_ptr(native_app)->OnScaleGesture(scale_x, scale_y);
+}
+
 
 }   // extern "C"

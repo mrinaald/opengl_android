@@ -10,7 +10,8 @@ namespace ndk_opengl_app {
 
 NativeOpenGLApp::NativeOpenGLApp(JavaVM *vm)
         : screen_width(0),
-          screen_height(0) {
+          screen_height(0),
+          gesture_mode(MODE_ROTATE) {
   JNIEnv* env;
   vm->GetEnv((void**)&env, JNI_VERSION_1_6);
   renderer = new Renderer();
@@ -56,7 +57,29 @@ void NativeOpenGLApp::OnViewReset() {
 
 
 void NativeOpenGLApp::OnSwitchGestureMode(int mode) {
-  renderer->OnSwitchGestureMode(mode);
+  switch (mode) {
+    case MODE_ROTATE:
+    case MODE_PAN:
+      gesture_mode = mode;
+      break;
+    default:
+      break;
+  }
+}
+
+
+void NativeOpenGLApp::OnDragGesture(const float diff_x, const float diff_y) {
+  if (gesture_mode == MODE_ROTATE) {
+    renderer->OnRotate(diff_x, diff_y);
+  }
+  else if (gesture_mode == MODE_PAN) {
+    renderer->OnTranslate(diff_x, diff_y);
+  }
+}
+
+
+void NativeOpenGLApp::OnScaleGesture(const float scale_x, const float scale_y) {
+  renderer->OnScale(scale_x, scale_y);
 }
 
 }   // namespace ndk_opengl_app

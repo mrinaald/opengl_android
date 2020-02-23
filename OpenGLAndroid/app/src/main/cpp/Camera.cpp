@@ -22,8 +22,7 @@ namespace {
 }
 
 
-Camera::Camera()
-    : gesture_mode(MODE_ROTATE) {
+Camera::Camera() {
   position[0] = initial_position[0] = DEFAULT_POS_X;
   position[1] = initial_position[1] = DEFAULT_POS_Y;
   position[2] = initial_position[2] = DEFAULT_POS_Z;
@@ -38,8 +37,7 @@ Camera::Camera()
 }
 
 
-Camera::Camera(glmath::Vec3 _pos, glmath::Vec3 _target, glmath::Vec3 _up)
-        : gesture_mode(MODE_ROTATE) {
+Camera::Camera(glmath::Vec3 _pos, glmath::Vec3 _target, glmath::Vec3 _up) {
   position[0] = initial_position[0] = _pos[0];
   position[1] = initial_position[1] = _pos[1];
   position[2] = initial_position[2] = _pos[2];
@@ -69,18 +67,6 @@ void Camera::ResetCamera() {
 }
 
 
-void Camera::SwitchGestureMode(const int mode) {
-  switch (mode) {
-    case MODE_ROTATE:
-    case MODE_PAN:
-      gesture_mode = mode;
-      break;
-    default:
-      break;
-  }
-}
-
-
 glmath::Matrix4x4 Camera::GetViewMatrix() {
   float radius = 10.0f;
   float angle = GetMonotonicTimeMilliSecs() * 0.002f;
@@ -95,6 +81,21 @@ glmath::Matrix4x4 Camera::GetViewMatrix() {
   viewMatrix.SetToLookAt(position, target, up);
 
   return viewMatrix;
+}
+
+
+void Camera::Rotate(const float yaw, const float pitch) {
+  LOGD("Camera::Rotate() Yaw: [%.5f]  Pitch: [%.5f]", yaw, pitch);
+}
+
+
+void Camera::Translate(const float diff_x, const float diff_y) {
+  LOGD("Camera::Translate() X: [%.5f]  Y: [%.5f]", diff_x, diff_y);
+}
+
+
+void Camera::Zoom(const float scale_x, const float scale_y) {
+  LOGD("Camera::Zoom() X: [%.5f]  Y: [%.5f]", scale_x, scale_y);
 }
 
 }   // namespace ndk_opengl_app

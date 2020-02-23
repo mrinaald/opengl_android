@@ -19,13 +19,15 @@ class Camera {
 
   void ResetCamera();
 
-  void SwitchGestureMode(const int mode);
+  void Rotate(const float yaw, const float pitch);
+
+  void Translate(const float diff_x, const float diff_y);
+
+  void Zoom(const float scale_x, const float scale_y);
 
   glmath::Matrix4x4 GetViewMatrix();
 
  private:
-  const static int MODE_ROTATE = 1;
-  const static int MODE_PAN = 2;
 
   glmath::Vec3 position;
   glmath::Vec3 target;
@@ -34,8 +36,6 @@ class Camera {
   glmath::Vec3 initial_position;
   glmath::Vec3 initial_target;
   glmath::Vec3 initial_up;
-
-  int gesture_mode;
 };
 
 }   // ndk_opengl_app

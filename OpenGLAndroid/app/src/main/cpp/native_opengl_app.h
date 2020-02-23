@@ -35,8 +35,16 @@ class NativeOpenGLApp {
 
   void OnSwitchGestureMode(int mode);
 
+  void OnDragGesture(const float diff_x, const float diff_y);
+
+  void OnScaleGesture(const float scale_x, const float scale_y);
+
 
  private:
+  const static int MODE_ROTATE = 1;
+  const static int MODE_PAN = 2;
+  int gesture_mode;
+
   int screen_width;
   int screen_height;
 

@@ -282,8 +282,18 @@ void Renderer::OnViewReset() {
 }
 
 
-void Renderer::OnSwitchGestureMode(int mode) {
-  camera->SwitchGestureMode(mode);
+void Renderer::OnRotate(const float diff_x, const float diff_y) {
+  camera->Rotate(diff_x, diff_y);
+}
+
+
+void Renderer::OnTranslate(const float diff_x, const float diff_y) {
+  camera->Translate(diff_x, diff_y);
+}
+
+
+void Renderer::OnScale(const float scale_x, const float scale_y) {
+  camera->Zoom(scale_x, scale_y);
 }
 
 }   // namespace ndk_opengl_app

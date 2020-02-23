@@ -44,7 +44,11 @@ class Renderer {
 
   void OnViewReset();
 
-  void OnSwitchGestureMode(int mode);
+  void OnRotate(const float diff_x, const float diff_y);
+
+  void OnTranslate(const float diff_x, const float diff_y);
+
+  void OnScale(const float scale_x, const float scale_y);
 
 
  private:
