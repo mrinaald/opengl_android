@@ -73,9 +73,9 @@ glmath::Matrix4x4 Camera::GetViewMatrix() {
   float camX   = sin(angle) * radius;
   float camZ   = cos(angle) * radius;
 
-  position = glmath::Vec3(camX, 0.0f, camZ);
-  target = glmath::Vec3(0.0f, 0.0f, 0.0f);
-  up = glmath::Vec3(0.0f, 1.0f, 0.0f);
+  // position = glmath::Vec3(camX, 0.0f, camZ);
+  // target = glmath::Vec3(0.0f, 0.0f, 0.0f);
+  // up = glmath::Vec3(0.0f, 1.0f, 0.0f);
 
   glmath::Matrix4x4 viewMatrix;
   viewMatrix.SetToLookAt(position, target, up);

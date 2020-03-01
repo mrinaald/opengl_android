@@ -52,8 +52,10 @@ class Renderer {
 
  private:
   Shader* object_shader;
+  Shader* light_shader;
 
-  GLuint vertex_array_obj;
+  GLuint cubeVAO;
+  GLuint lightVAO;
   GLuint vertex_buffer_obj;
   GLuint element_buffer_obj;
 

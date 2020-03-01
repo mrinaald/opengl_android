@@ -17,6 +17,7 @@ import android.graphics.Matrix
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.View
+import android.view.Window
 import android.widget.Button
 import androidx.core.view.MotionEventCompat
 
@@ -99,7 +100,9 @@ class MainActivity : AppCompatActivity() {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+    window.requestFeature(Window.FEATURE_NO_TITLE)  // hide title
     setContentView(R.layout.activity_main)
+    supportActionBar?.hide()    // hide title bar
 
     nativeApp = nativeOnCreate()
 
@@ -215,19 +218,22 @@ class MainActivity : AppCompatActivity() {
 
 
   override fun onPause() {
-    super.onPause()
+    Log.d(TAG, "onPause()")
     nativeOnPause(nativeApp)
+    super.onPause()
   }
 
   override fun onResume() {
+    Log.d(TAG, "onResume()")
     super.onResume()
     nativeOnResume(nativeApp)
   }
 
   override fun onDestroy() {
-    super.onDestroy()
+    Log.d(TAG, "onDestroy()")
     nativeOnDestroy(nativeApp)
     nativeApp = 0
+    super.onDestroy()
   }
 
 
