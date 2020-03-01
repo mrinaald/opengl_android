@@ -22,6 +22,7 @@
 #include "Texture.h"
 #include "Camera.h"
 #include "GLMath.h"
+#include "Shader.h"
 #include "utils.h"
 
 namespace ndk_opengl_app {
@@ -35,8 +36,6 @@ class Renderer {
   void Initialize();
 
   void RenderFrame();
-
-  void UseProgram();
 
   void SetScreenParams(const int width, const int height);
 
@@ -52,7 +51,7 @@ class Renderer {
 
 
  private:
-  GLuint shader_program;
+  Shader* object_shader;
 
   GLuint vertex_array_obj;
   GLuint vertex_buffer_obj;

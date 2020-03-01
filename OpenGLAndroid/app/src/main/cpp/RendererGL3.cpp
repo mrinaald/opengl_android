@@ -116,8 +116,7 @@ glmath::Vec3 cubePositions[] = {
 
 
 Renderer::Renderer()
-        : shader_program(0),
-          vertex_array_obj(0),
+        : vertex_array_obj(0),
           vertex_buffer_obj(0),
           element_buffer_obj(0),
           screen_width(0),
@@ -132,29 +131,12 @@ Renderer::~Renderer() {
   // glDeleteBuffers(1, &element_buffer_obj);
 
   delete camera;
+  delete object_shader;
 }
 
 
 void Renderer::Initialize() {
-  const GLuint vertex_shader =
-          LoadGLShader(GL_VERTEX_SHADER, VERTEX_SHADER);
-  const GLuint fragment_shader =
-          LoadGLShader(GL_FRAGMENT_SHADER, FRAGMENT_SHADER);
-
-  glEnable(GL_DEPTH_TEST);
-
-  shader_program = glCreateProgram();
-  glAttachShader(shader_program, vertex_shader);
-  glAttachShader(shader_program, fragment_shader);
-  glLinkProgram(shader_program);
-
-  CHECKGLERROR("Compile Shader program");
-
-  // According to "https://learnopengl.com/Getting-started/Hello-Triangle"
-  // it is okay to delete shader objects after linking
-  glDeleteShader(vertex_shader);
-  glDeleteShader(fragment_shader);
-
+  object_shader = new Shader(VERTEX_SHADER, FRAGMENT_SHADER);
 
   // Creating Vertex Buffer Objects and Vertex Buffer Arrays
   glGenVertexArrays(1, &vertex_array_obj);
@@ -195,11 +177,6 @@ void Renderer::Initialize() {
 }
 
 
-void Renderer::UseProgram() {
-  glUseProgram(shader_program);
-}
-
-
 void Renderer::RenderFrame() {
   glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -212,22 +189,20 @@ void Renderer::RenderFrame() {
   // create transformations
   glmath::Matrix4x4 view = camera->GetViewMatrix();
 
-  UseProgram();
+  object_shader->UseProgram();
 
-  GLint view_loc = glGetUniformLocation(shader_program, "view");
-  glUniformMatrix4fv(view_loc, 1, GL_FALSE, view.ToGlArray().data());
+  object_shader->setMat4("view", view);
 
   glBindVertexArray(vertex_array_obj);  // seeing as we only have a single VAO there's no need to
                                         // bind it every time, but we'll do so to keep things a
                                         // bit more organized
 
-  GLint model_loc = glGetUniformLocation(shader_program, "model");
   for (int i=0; i<10; ++i) {
     glmath::Matrix4x4 model;
     model.Translate(cubePositions[i]);
     float angle = 20.0f * i;
     model.Rotate(glmath::DegToRad(angle), glmath::Vec3(1.0f, 0.3f, 0.5f));
-    glUniformMatrix4fv(model_loc, 1, GL_FALSE, model.ToGlArray().data());
+    object_shader->setMat4("model", model);
 
     glDrawArrays(GL_TRIANGLES, 0, 36);
   }
@@ -243,13 +218,12 @@ void Renderer::SetScreenParams(const int width, const int height) {
   LOGD("Screen Params (WxH): %d x %d", width, height);
   // pass projection matrix to shader (as projection matrix rarely changes there's no
   // need to do this per frame)
-  UseProgram();
+  object_shader->UseProgram();
   glmath::Matrix4x4 projection;
   projection.SetToPerspective(glmath::DegToRad(45.0f),
                               ((float)screen_width) / screen_height, 0.1f, 100.0f);
 
-  GLint projection_loc = glGetUniformLocation(shader_program, "projection");
-  glUniformMatrix4fv(projection_loc, 1, GL_FALSE, projection.ToGlArray().data());
+  object_shader->setMat4("projection", projection);
 }
 
 
@@ -269,9 +243,9 @@ void Renderer::LoadTextureFromBitmap(JNIEnv* env, jobject bitmap, int new_active
 
   // tell opengl for each sampler to which texture unit it belongs to (only has to be done once)
   // -------------------------------------------------------------------------------------------
-  UseProgram();   // don't forget to activate/use the shader before setting uniforms!
+  object_shader->UseProgram();   // don't forget to activate/use the shader before setting uniforms!
   std::string sampler_name = "texture" + std::to_string(texture_objs.size());
-  glUniform1i(glGetUniformLocation(shader_program, sampler_name.c_str()), texture_objs.size());
+  object_shader->setInt(sampler_name, texture_objs.size());
 
   texture_objs.push_back(texture);
 }

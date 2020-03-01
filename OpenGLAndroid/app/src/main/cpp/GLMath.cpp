@@ -60,6 +60,10 @@ Vec3 Vec3::operator-(const glmath::Vec3 &rhs) const {
           this->vec[2] - rhs[2]};
 }
 
+const float* Vec3::GetData() const {
+  return this->vec.data();
+}
+
 /* ** End of Vec3 Defintions ** */
 
 
@@ -106,6 +110,9 @@ Vec4 Vec4::operator-(const glmath::Vec4 &rhs) const {
           this->vec[3] - rhs[3]};
 }
 
+const float* Vec4::GetData() const {
+  return this->vec.data();
+}
 
 /* ** End of Vec4 Defintions ** */
 
@@ -206,7 +213,7 @@ Vec4 Matrix4x4::operator*(const glmath::Vec4 &vec) {
   return result;
 }
 
-std::array<float, 16> Matrix4x4::ToGlArray() {
+std::array<float, 16> Matrix4x4::ToGlArray() const {
   std::array<float, 16> result{};
   memcpy(&result[0], mat, 16 * sizeof(float));
   return result;

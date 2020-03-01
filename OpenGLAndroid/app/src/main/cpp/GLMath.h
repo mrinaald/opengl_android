@@ -42,6 +42,8 @@ class Vec3 {
 
   Vec3 operator-(const Vec3& rhs) const;
 
+  const float* GetData() const;
+
 
  private:
   std::array<float, 3> vec;
@@ -75,6 +77,8 @@ class Vec4 {
 
   Vec4 operator-(const Vec4& rhs) const;
 
+  const float* GetData() const;
+
  private:
   std::array<float, 4> vec;
 };    // class Vec4
@@ -103,7 +107,7 @@ class Matrix4x4 {
   Vec4 operator*(const Vec4& vec);
 
   // Converts a matrix to an array of floats suitable for passing to OpenGL.
-  std::array<float, 16> ToGlArray();
+  std::array<float, 16> ToGlArray() const;
 
   // Translate Matrix
   void Translate(const Vec3& vec);
